@@ -6,6 +6,7 @@ description "Advanced VDM Detection"
 version "1.0.0"
 
 lua54 "yes"
+use_experimental_fxv2_oal "yes"
 
 shared_script "config.lua"
 
