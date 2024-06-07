@@ -208,7 +208,7 @@ RegisterNetEvent("vdm:verify", function()
         local vehicle = GetVehiclePedIsIn(ped, false)
         local timeToStop = GetTimeToStop(vehicle)
         if (facedTargetForTime / 1000) > (timeToStop + stopOffset) then
-            TriggerServerEvent("vdm:punish", facedTargetForTime, timeToStop + stopOffset)
+            TriggerServerEvent("vdm:punish", facedTargetForTime, timeToStop)
 
             if removeKillerVehicle then
                 SetEntityAsNoLongerNeeded(vehicle)
