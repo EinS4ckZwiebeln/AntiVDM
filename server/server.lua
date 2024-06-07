@@ -37,14 +37,14 @@ RegisterServerEvent("vdm:punish", function(facedTargetForTime, timeToStop)
     if not awaitedSources[src] or IsPlayerAceAllowed(src, permission) then
         return
     end
-    if discordWebhook and string.len(discordWebhook) > 0 then
-        local confidence = GetConfidenceScore(facedTargetForTime, timeToStop)
-        Discord.PostWebook(discordWebhook, Discord.GetEmbed(src, confidence, round(facedTargetForTime / 1000, 2), round(timeToStop, 2)))
-    end
     local victim = killerVictims[src]
     violations[src] = (violations[src] or 0) + 1
     if violations[src] >= punishment.requiredViolations then
         punish(src, victim)
+    end
+    if discordWebhook and string.len(discordWebhook) > 0 then
+        local confidence = GetConfidenceScore(facedTargetForTime, timeToStop)
+        Discord.PostWebook(discordWebhook, Discord.GetEmbed(src, confidence, violations[src]))
     end
     if shouldReviveVictim then
         TriggerClientEvent("vdm:revive", victim)

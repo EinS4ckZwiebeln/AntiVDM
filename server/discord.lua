@@ -29,7 +29,7 @@ local function GetIdentifierType(source, type)
     return GetPlayerIdentifierByType(source, type) or "unknownlicense"
 end
 
-function Discord.GetEmbed(source, chance, facedTargetForTime, timeToStop)
+function Discord.GetEmbed(source, chance, violations)
     return {
         {
             ["color"] = "3700735",
@@ -40,18 +40,13 @@ function Discord.GetEmbed(source, chance, facedTargetForTime, timeToStop)
             ["title"] = "VDM Detected",
             ["fields"] = {
                 {
-                    ["name"] = "Name",
+                    ["name"] = "Player",
                     ["value"] = format("%s (%s)", GetPlayerName(source), source),
                     ["inline"] = true
                 },
                 {
-                    ["name"] = "FTT",
-                    ["value"] = format("%ss", facedTargetForTime),
-                    ["inline"] = true
-                },
-                {
-                    ["name"] = "TTS",
-                    ["value"] = format("%ss", timeToStop),
+                    ["name"] = "Violation(s)",
+                    ["value"] = format("%sx", violations),
                     ["inline"] = true
                 },
                 {
