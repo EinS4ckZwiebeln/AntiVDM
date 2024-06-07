@@ -5,6 +5,7 @@ local sin = math.sin
 local abs = math.abs
 local deg = math.deg
 local rad = math.rad
+local min = math.min
 local floor = math.floor
 
 local sort = table.sort
@@ -95,16 +96,19 @@ local function IsFacingPed(vehicle, target, inReverse)
     return angle <= maxAngle
 end
 
+local function IsVehicleSuitable(vehicle)
+    return IsVehicleDriveable(vehicle, true) and not ignoredClasses[GetVehicleClass(vehicle)] and not (GetEntityHeightAboveGround(vehicle) > 2.0)
+end
+
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(100)
         local ped = PlayerPedId()
 
-        if IsPedInAnyVehicle(ped, false) and GetEntityHeightAboveGround(ped) < 8.0 then
+        if IsPedInAnyVehicle(ped, false) then
             local vehicle = GetVehiclePedIsIn(ped, false)
             -- Only check for VDM if the vehicle is a car, bike or truck and driveable
-            if IsVehicleDriveable(vehicle, true) and not ignoredClasses[GetVehicleClass(vehicle)] then
-
+            if IsVehicleSuitable(vehicle) then
                 local coords = GetEntityCoords(ped)
                 local pool = GetActivePlayers()
 
@@ -114,8 +118,7 @@ Citizen.CreateThread(function()
                 sort(pool, SortByDistance)
 
                 closestPlayers = {}
-                local pLength = #pool
-                local availableTargets = pLength < maxTargets and pLength or maxTargets
+                local availableTargets = min(#pool, maxTargets)
                 for i = 1, availableTargets do
                     local target = GetPlayerPed(pool[i])
                     if DoesEntityExist(target) and IsPedOnFoot(target) and not IsPedDeadOrDying(target) then
@@ -123,10 +126,10 @@ Citizen.CreateThread(function()
                     end
                 end
 
-                local length = #closestPlayers
                 local wasFacingPlayer = false
                 local inReverse = GetEntitySpeedVector(vehicle, true).y < 0.0
 
+                local length = #closestPlayers
                 for i = 1, length do
                     local player = closestPlayers[i]
                     while IsFacingPed(vehicle, player, inReverse) do
@@ -141,7 +144,6 @@ Citizen.CreateThread(function()
                             break
                         end
                     end
-
                     if wasFacingPlayer and (facedTargetForTime / 1000) > 1.0 then
                         Citizen.Wait(1000)
                         wasFacingPlayer = false
@@ -174,7 +176,6 @@ RegisterNetEvent("vdm:verify", function()
         local timeToStop = GetTimeToStop(vehicle)
         if (facedTargetForTime / 1000) > (timeToStop + stopOffset) then
             TriggerServerEvent("vdm:punish", facedTargetForTime, timeToStop)
-
             if removeKillerVehicle then
                 SetEntityAsNoLongerNeeded(vehicle)
                 DeleteEntity(vehicle)
@@ -230,18 +231,6 @@ end)
 
 -- Debug 
 Citizen.CreateThread(function()
-    local SetTextFont = SetTextFont
-    local SetTextProportional = SetTextProportional
-    local SetTextScale = SetTextScale
-    local SetTextColour = SetTextColour
-    local SetTextDropshadow = SetTextDropshadow
-    local SetTextEdge = SetTextEdge
-    local SetTextDropShadow = SetTextDropShadow
-    local SetTextOutline = SetTextOutline
-    local SetTextEntry = SetTextEntry
-    local AddTextComponentString = AddTextComponentString
-    local DrawText = DrawText
-
     while debug do
         Citizen.Wait(0)
         local ped = PlayerPedId()
