@@ -2,17 +2,14 @@ Discord = {}
 
 local encode = json.encode
 local format = string.format
+local ceil = math.ceil
 
-local GetPlayerName = GetPlayerName
-local PerformHttpRequest = PerformHttpRequest
-local GetPlayerIdentifierByType = GetPlayerIdentifierByType
-
-local version<const> = GetResourceMetadata(GetCurrentResourceName(), "version", 0)
+local VERSION<const> = GetResourceMetadata(GetCurrentResourceName(), "version", 0)
 
 function Discord.PostWebook(url, embed)
     PerformHttpRequest(url, function(err, text, headers)
     end, "POST", encode({
-        ["username"] = "Adcanced Anti VDM",
+        ["username"] = "Advanced Anti VDM",
         ["embeds"] = embed
     }), {
         ["Content-Type"] = "application/json"
@@ -23,25 +20,39 @@ local emptyBlock, filledBlock = "⬜", "🟦"
 local function GetPercentageDisplay(value)
     local display = ""
     for i = 1, 10 do
-        display = display .. (value >= i * 10 and filledBlock or emptyBlock)
+        display = display .. (ceil(value) >= i * 10 and filledBlock or emptyBlock)
     end
     return display
 end
 
-function Discord.GetEmbed(source, chance)
+local function GetIdentifierType(source, type)
+    return GetPlayerIdentifierByType(source, type) or "unknownlicense"
+end
+
+function Discord.GetEmbed(source, chance, facedTargetForTime, timeToStop)
     return {
         {
             ["color"] = "3700735",
             ["author"] = {
-                ["name"] = format("Advanced Anti VDM v%s", version),
+                ["name"] = format("Advanced Anti VDM v%s", VERSION),
                 ["icon_url"] = "https://raw.githubusercontent.com/EinS4ckZwiebeln/assets/main/vdm_icon.png"
             },
             ["title"] = "VDM Detected",
             ["fields"] = {
                 {
                     ["name"] = "Name",
-                    ["value"] = GetPlayerName(source),
-                    ["inline"] = false
+                    ["value"] = format("%s (%s)", GetPlayerName(source), source),
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "FTT",
+                    ["value"] = format("%ss", facedTargetForTime),
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "TTS",
+                    ["value"] = format("%ss", timeToStop),
+                    ["inline"] = true
                 },
                 {
                     ["name"] = "Confidence",
@@ -49,8 +60,18 @@ function Discord.GetEmbed(source, chance)
                     ["inline"] = false
                 },
                 {
-                    ["name"] = "FiveM",
-                    ["value"] = GetPlayerIdentifierByType(source, "license"),
+                    ["name"] = "License",
+                    ["value"] = "```\n" .. GetIdentifierType(source, "license") .. "\n```",
+                    ["inline"] = false
+                },
+                {
+                    ["name"] = "Steam",
+                    ["value"] = "```\n" .. GetIdentifierType(source, "steam") .. "\n```",
+                    ["inline"] = false
+                },
+                {
+                    ["name"] = "Discord",
+                    ["value"] = "```\n" .. GetIdentifierType(source, "discord") .. "\n```",
                     ["inline"] = false
                 }
             },
