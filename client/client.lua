@@ -97,7 +97,7 @@ local function IsFacingPed(vehicle, target, inReverse)
 end
 
 local function IsVehicleSuitable(vehicle)
-    return IsVehicleDriveable(vehicle, true) and not ignoredClasses[GetVehicleClass(vehicle)] and not (GetEntityHeightAboveGround(vehicle) > 2.0)
+    return IsVehicleDriveable(vehicle, true) and not ignoredClasses[GetVehicleClass(vehicle)] and not (GetEntityHeightAboveGround(vehicle) > 3.5)
 end
 
 Citizen.CreateThread(function()
