@@ -164,7 +164,7 @@ RegisterNetEvent("vdm:revive", function()
             SetEntityHealth(ped, GetEntityMaxHealth(ped))
         end
         if debug then
-            print("^1VDM: Revived victim")
+            print("^1VDM: Revived victim^0")
         end
     end
 end)
@@ -182,8 +182,8 @@ RegisterNetEvent("vdm:verify", function()
             end
         end
         if debug then
-            print("^1VDM: Time to stop: " .. round(timeToStop, 2) .. "s",
-                "^1VDM: Faced target for: " .. facedTargetForTime / 1000 .. "s")
+            print("^1VDM: Time to stop: " .. round(timeToStop, 2) .. "s^0",
+                "^1VDM: Faced target for: " .. facedTargetForTime / 1000 .. "s^0")
         end
     end
 end)
