@@ -4,15 +4,10 @@ local cos = math.cos
 local sin = math.sin
 local abs = math.abs
 local deg = math.deg
-local rad = math.rad
 local min = math.min
 local floor = math.floor
-
 local sort = table.sort
 local format = string.format
-local joaat = joaat
-
-local vec3 = vec3
 local vec2 = vec2
 
 local debug = Config.Debug
@@ -23,31 +18,31 @@ local restoreVictimHealth = Config.Actions.restoreVictimHealth
 
 local closestPlayers = {}
 local facedTargetForTime = 0
-local maxSpeed = 0
-local globalAngle = 0
+local maxSpeed, globalAngle = 0, 0
 
-local settings = {
+local SETTINGS<const> = {
     ["RELAXED"] = {
         maxAngle = 8.0,
-        stopOffset = 0.15
+        stopOffset = 0.5
     },
     ["MODERATE"] = {
         maxAngle = 14.0,
-        stopOffset = 0.0
+        stopOffset = 0.25
     },
     ["STRICT"] = {
         maxAngle = 20.0,
-        stopOffset = -0.15
+        stopOffset = 0.1
     }
 }
 
-if settings[mode] == nil then
-    print("^1VDM: Invalid mode, defaulting to MODERATE^0")
+local MIN_SPEED_THRESHOLD<const> = 8
+if SETTINGS[mode] == nil then
+    print("^1[ERROR] Invalid detection mode, defaulting to MODERATE^0")
     mode = "MODERATE"
 end
 
-local maxAngle = settings[mode].maxAngle
-local stopOffset = settings[mode].stopOffset
+local maxAngle = SETTINGS[mode].maxAngle
+local stopOffset = SETTINGS[mode].stopOffset
 
 local ignoredClasses = {}
 for i = 1, #ignoredVehicleClasses do
@@ -102,7 +97,6 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(100)
         local ped = PlayerPedId()
-
         if IsPedInAnyVehicle(ped, false) then
             local vehicle = GetVehiclePedIsIn(ped, false)
             -- Only check for VDM if the vehicle is a car, bike or truck and driveable
@@ -138,7 +132,7 @@ Citizen.CreateThread(function()
                             maxSpeed = speed
                         end
                         wasFacingPlayer = true
-                        if speed < 3 * 3.6 then
+                        if speed < MIN_SPEED_THRESHOLD then
                             break
                         end
                     end
@@ -170,7 +164,7 @@ RegisterNetEvent("vdm:verify", function()
     if IsPedInAnyVehicle(ped, false) then
         local vehicle = GetVehiclePedIsIn(ped, false)
         local timeToStop = GetTimeToStop(vehicle)
-        if (facedTargetForTime / 1000) > (timeToStop + stopOffset) then
+        if maxSpeed > 0 and (facedTargetForTime / 1000) > (timeToStop + stopOffset) then
             local killerVehicleNetId = NetworkGetNetworkIdFromEntity(vehicle)
             TriggerServerEvent("vdm:punish", facedTargetForTime, timeToStop, killerVehicleNetId)
         end
