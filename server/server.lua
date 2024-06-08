@@ -9,8 +9,8 @@ local punish = punishment.punish
 local discordWebhook = Config.DiscordWebhook
 local permission = Config.Permission
 local shouldReviveVictim = Config.Actions.reviveVictim
+local removeKillerVehicle = Config.Actions.removeKillerVehicle
 
-local awaitedSources = {}
 local killerVictims = {}
 local violations = {}
 
@@ -20,9 +20,9 @@ local function round(number, decimals)
 end
 
 RegisterServerEvent("vdm:check", function(killer)
-    local src = tonumber(source)
-    if src == killer then return end
-    killerVictims[killer], awaitedSources[killer] = src, killer
+    local victim = tonumber(source)
+    if victim == killer then return end
+    killerVictims[killer] = victim
     TriggerClientEvent("vdm:verify", killer)
 end)
 
@@ -33,18 +33,18 @@ local function GetConfidenceScore(facedTargetForTime, timeToStop)
 end
 
 RegisterServerEvent("vdm:punish", function(facedTargetForTime, timeToStop, killerVehicleNetId)
-    local src = tonumber(source)
-    if not awaitedSources[src] or IsPlayerAceAllowed(src, permission) then
+    local killer = tonumber(source)
+    local victim = killerVictims[killer]
+    if not victim or IsPlayerAceAllowed(killer, permission) then
         return
     end
-    local victim = killerVictims[src]
-    violations[src] = (violations[src] or 0) + 1
-    if violations[src] >= punishment.requiredViolations then
-        punish(src, victim)
+    violations[killer] = (violations[killer] or 0) + 1
+    if violations[killer] >= punishment.requiredViolations then
+        punish(killer, victim)
     end
     if discordWebhook and string.len(discordWebhook) > 0 then
         local confidence = GetConfidenceScore(facedTargetForTime, timeToStop)
-        Discord.PostWebook(discordWebhook, Discord.GetEmbed(src, confidence, violations[src]))
+        Discord.PostWebook(discordWebhook, Discord.GetEmbed(killer, confidence, violations[killer]))
     end
     if shouldReviveVictim then
         TriggerClientEvent("vdm:revive", victim)
@@ -53,5 +53,5 @@ RegisterServerEvent("vdm:punish", function(facedTargetForTime, timeToStop, kille
         local killerVehicle = NetworkGetEntityFromNetworkId(killerVehicleNetId)
         if DoesEntityExist(killerVehicle) then DeleteEntity(killerVehicle) end
     end
-    awaitedSources[src], killerVictims[src] = nil, nil
+    killerVictims[killer] = nil
 end)
