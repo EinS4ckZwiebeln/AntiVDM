@@ -43,7 +43,7 @@ local settings = {
 }
 
 if settings[mode] == nil then
-    print("^1VDM: Invalid mode, defaulting to MODERATE")
+    print("^1VDM: Invalid mode, defaulting to MODERATE^0")
     mode = "MODERATE"
 end
 
