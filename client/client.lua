@@ -21,7 +21,6 @@ local maxTargets = Config.MaxTargets
 local shouldReviveVictim = Config.Actions.reviveVictim
 local ignoredVehicleClasses = Config.IgnoredVehicleClasses
 local restoreVictimHealth = Config.Actions.restoreVictimHealth
-local removeKillerVehicle = Config.Actions.removeKillerVehicle
 
 local closestPlayers = {}
 local facedTargetForTime = 0
@@ -175,11 +174,8 @@ RegisterNetEvent("vdm:verify", function()
         local vehicle = GetVehiclePedIsIn(ped, false)
         local timeToStop = GetTimeToStop(vehicle)
         if (facedTargetForTime / 1000) > (timeToStop + stopOffset) then
-            TriggerServerEvent("vdm:punish", facedTargetForTime, timeToStop)
-            if removeKillerVehicle then
-                SetEntityAsNoLongerNeeded(vehicle)
-                DeleteEntity(vehicle)
-            end
+            local killerVehicleNetId = NetworkGetNetworkIdFromEntity(vehicle)
+            TriggerServerEvent("vdm:punish", facedTargetForTime, timeToStop, killerVehicleNetId)
         end
         if debug then
             print("^1VDM: Time to stop: " .. round(timeToStop, 2) .. "s^0",

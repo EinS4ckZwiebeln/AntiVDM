@@ -27,7 +27,7 @@ Config.Punishment = {
     -- The punishment to be executed.
     punish = function(suspect, victim)
         -- You can add your own punishment logic here:
-        print(("^1Player %s has been flagged for VDM^0"):format(GetPlayerName(suspect)))
+        print(("^3[WARNING] Player '%s' has been flagged for VDM^0"):format(GetPlayerName(suspect)))
     end
 }
 

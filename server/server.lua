@@ -32,7 +32,7 @@ local function GetConfidenceScore(facedTargetForTime, timeToStop)
     return min(round((exp(diff / (timeToStop * 1000 * SCALING_FACTOR)) - 1) * 100, 1), 100.0)
 end
 
-RegisterServerEvent("vdm:punish", function(facedTargetForTime, timeToStop)
+RegisterServerEvent("vdm:punish", function(facedTargetForTime, timeToStop, killerVehicleNetId)
     local src = tonumber(source)
     if not awaitedSources[src] or IsPlayerAceAllowed(src, permission) then
         return
@@ -48,6 +48,10 @@ RegisterServerEvent("vdm:punish", function(facedTargetForTime, timeToStop)
     end
     if shouldReviveVictim then
         TriggerClientEvent("vdm:revive", victim)
+    end
+    if removeKillerVehicle then
+        local killerVehicle = NetworkGetEntityFromNetworkId(killerVehicleNetId)
+        if DoesEntityExist(killerVehicle) then DeleteEntity(killerVehicle) end
     end
     awaitedSources[src], killerVictims[src] = nil, nil
 end)
