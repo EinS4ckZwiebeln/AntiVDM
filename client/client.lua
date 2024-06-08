@@ -18,7 +18,6 @@ local vec2 = vec2
 local debug = Config.Debug
 local mode = Config.Mode
 local maxTargets = Config.MaxTargets
-local shouldReviveVictim = Config.Actions.reviveVictim
 local ignoredVehicleClasses = Config.IgnoredVehicleClasses
 local restoreVictimHealth = Config.Actions.restoreVictimHealth
 
@@ -156,15 +155,13 @@ end)
 
 RegisterNetEvent("vdm:revive", function()
     local ped = PlayerPedId()
-    if shouldReviveVictim and IsPedDeadOrDying(ped) then
-        NetworkResurrectLocalPlayer(GetEntityCoords(ped), GetEntityRotation(ped), true, false)
-        SetPlayerInvincible(ped, false)
-        if restoreVictimHealth then
-            SetEntityHealth(ped, GetEntityMaxHealth(ped))
-        end
-        if debug then
-            print("^1VDM: Revived victim^0")
-        end
+    NetworkResurrectLocalPlayer(GetEntityCoords(ped), GetEntityRotation(ped), true, false)
+    SetPlayerInvincible(ped, false)
+    if restoreVictimHealth then
+        SetEntityHealth(ped, GetEntityMaxHealth(ped))
+    end
+    if debug then
+        print("^1VDM: Revived victim^0")
     end
 end)
 
