@@ -20,7 +20,6 @@ server_script {
 }
 
 dependencies {
-    "/onesync", 
-    "/server:5181", 
-    "baseevents"
+    "/server:7290",
+    "/onesync"
 }

@@ -188,43 +188,16 @@ RegisterNetEvent("vdm:verify", function()
     end
 end)
 
-AddEventHandler("baseevents:onPlayerKilled", function(killerId, deathData)
-    if killerId == -1 and deathData.killervehseat == -1 and deathData.weaponhash == -1553120962 and
-        deathData.killerinveh then
-        local coords = GetEntityCoords(PlayerPedId())
-        local vehicles = GetGamePool("CVehicle")
-
-        local function SortByDistance(a, b)
-            return #(coords - GetEntityCoords(a)) < #(coords - GetEntityCoords(b))
-        end
-        sort(vehicles, SortByDistance)
-
-        local killerVehicle = nil
-        local modelHash = joaat(deathData.killervehname)
-        local length = #vehicles
-
-        for i = 1, length do
-            local vehicle = vehicles[i]
-            if GetEntityModel(vehicle) == modelHash then
-                killerVehicle = vehicle
-                break
+AddEventHandler("gameEventTriggered", function(name, data)
+    if name == "CEventNetworkEntityDamage" then
+        local ped = PlayerPedId()
+        local victim, killer, isFatal, weapon = data[1], data[2], data[6], data[7]
+        if ped == victim and isFatal == 1 and IsPedAPlayer(killer) and weapon == -1553120962 then
+            local killerSource = GetPlayerServerId(NetworkGetPlayerIndexFromPed(killer))
+            TriggerServerEvent("vdm:check", killerSource)
+            if debug then
+                print(format("^1VDM: Checking client %s^0", killerSource))
             end
-        end
-        -- Fallback to closest vehicle
-        if not killerVehicle and length > 0 then
-            killerVehicle = vehicles[1]
-        end
-        if killerVehicle then
-            local killerPed = GetPedInVehicleSeat(killerVehicle, -1)
-            if IsPedAPlayer(killerPed) then
-                local killerSource = GetPlayerServerId(NetworkGetPlayerIndexFromPed(killerPed))
-                TriggerServerEvent("vdm:check", killerSource)
-                if debug then
-                    print("^1VDM: Checking " .. killerSource)
-                end
-            end
-        elseif debug then
-            print("^1VDM: Could not find killer vehicle")
         end
     end
 end)
